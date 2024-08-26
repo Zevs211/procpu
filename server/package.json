@@ -1,27 +1,35 @@
 {
-  "dependencies": {
-    "@fastify/cors": "^9.0.1",
-    "dayjs": "^1.11.10",
-    "dotenv": "^16.4.5",
-    "fastify": "^4.28.1",
-    "fastify-cli": "^6.1.1",
-    "fastify-postgres": "^3.7.0",
-    "pg": "^8.12.0"
-  },
-  "scripts": {
-    "start": "node server",
-    "dev": "nodemon server",
-    "migration:create": "node src/migrator/create.js"
-  },
   "name": "server",
   "version": "1.0.0",
-  "main": "./src/server.js",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node ./dist/index.js",
+    "dev": "nodemon --watch './src/**/*.ts' --exec 'npm run build && node ./dist/index.js'",
+    "lint": "eslint .",
+    "migration:create": "ts-node src/migrator/create.ts"
+  },
   "author": "",
   "license": "ISC",
   "description": "",
+  "dependencies": {
+    "@fastify/cors": "^9.0.1",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.28.1",
+    "pg": "^8.12.0"
+  },
   "devDependencies": {
-    "eslint": "^9.6.0",
-    "globals": "^15.8.0",
-    "nodemon": "^3.1.0"
+    "@eslint/js": "^9.9.1",
+    "@types/node": "^22.5.0",
+    "@types/pg": "^8.11.6",
+    "@typescript-eslint/eslint-plugin": "^8.2.0",
+    "@typescript-eslint/parser": "^8.2.0",
+    "eslint": "^9.9.1",
+    "globals": "^15.9.0",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.2.0"
   }
 }

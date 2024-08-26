@@ -1,14 +1,12 @@
 import globals from 'globals';
+import pluginJs from '@eslint/js';
+import tseslint from 'typescript-eslint';
 
 export default [
+  { files: ['**/*.{js,mjs,cjs,ts}'] },
   { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
-  {
-    languageOptions: {
-      globals:
-        globals.browser,
-        process: 'readonly',
-    },
-  },
+  { languageOptions: { globals: globals.node } },
+  pluginJs.configs.recommended,
   { rules: {
     'comma-dangle': ['error', 'always-multiline'],
     'semi': ['error', 'always'],
@@ -39,4 +37,5 @@ export default [
     'prefer-template': 'error',
     'object-curly-spacing': ['error', 'always'],
   } },
+  ...tseslint.configs.recommended,
 ];
