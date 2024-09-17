@@ -1,24 +1,17 @@
 import path from 'path';
-import { Client, QueryResult } from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-const config = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  port: Number(process.env.DB_PORT),
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-};
+import config from './config';
+import { Pool, PoolConfig, QueryResult } from 'pg';
 
-let client: Client | null = null;
-let newDbClient: Client | null = null;
+let pool: Pool | null = null;
+let newDbPool: Pool | null = null;
 
-const checkDatabaseExists = async (client: Client, dbName: string): Promise<boolean> => {
+const checkDatabaseExists = async (pool: Pool, dbName: string): Promise<boolean> => {
   try {
-    const res: QueryResult = await client.query('SELECT 1 FROM pg_database WHERE datname=$1', [dbName]);
-
+    const res: QueryResult = await pool.query('SELECT 1 FROM pg_database WHERE datname=$1', [dbName]);
     return (res.rowCount ?? 0) > 0;
   } catch (error) {
     console.error(`Error checking if database "${dbName}" exists:`, error);
@@ -26,25 +19,27 @@ const checkDatabaseExists = async (client: Client, dbName: string): Promise<bool
   }
 };
 
-const connect = async (): Promise<void> => {
+const connect = async (): Promise<Pool> => {
   try {
-    client = new Client(config);
-    await client.connect();
+    pool = new Pool(config as PoolConfig);
+    await pool.connect();
 
-    const dbExists = await checkDatabaseExists(client, process.env.DB_NAME!);
+    const dbExists = await checkDatabaseExists(pool, process.env.DB_NAME!);
     if (!dbExists) {
-      await client.query(`CREATE DATABASE ${process.env.DB_NAME}`);
+      await pool.query(`CREATE DATABASE ${process.env.DB_NAME}`);
       console.log(`Database "${process.env.DB_NAME}" created successfully.`);
     } else {
       console.log(`Database "${process.env.DB_NAME}" already exists.`);
     }
 
-    if (!newDbClient) {
+    if (!newDbPool) {
       const newConfig = { ...config, database: process.env.DB_NAME };
-      newDbClient = new Client(newConfig);
-      await newDbClient.connect();
+      newDbPool = new Pool(newConfig);
+      await newDbPool.connect();
       console.log(`Connected to database "${process.env.DB_NAME}".`);
     }
+
+    return newDbPool!;
   } catch (error) {
     console.error('Error connecting to PostgreSQL:', error);
     process.exit(1);
@@ -53,12 +48,12 @@ const connect = async (): Promise<void> => {
 
 const disconnect = async (): Promise<void> => {
   try {
-    if (client) {
-      await client.end();
+    if (pool) {
+      await pool.end();
       console.log('Disconnected from primary database.');
     }
-    if (newDbClient) {
-      await newDbClient.end();
+    if (newDbPool) {
+      await newDbPool.end();
       console.log('Disconnected from new database.');
     }
   } catch (error) {
