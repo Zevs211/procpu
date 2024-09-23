@@ -3,7 +3,7 @@ import fastify from 'fastify';
 import dotenv from 'dotenv';
 import cors from '@fastify/cors';
 import routes from './routes';
-import db from './database';
+import { connect, disconnect } from './database';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
@@ -17,11 +17,13 @@ app.register(cors);
 
 const start = async () => {
   try {
-    await app.listen({ port: PORT });
-    await db.connect();
+    await app.listen({ port: PORT, host: '127.0.0.1' });
+    await connect();
+    console.log(`Server is running on port ${PORT}`);
   } catch (err) {
     app.log.error(err);
-    process.exit(1);
+    await disconnect();
+    console.error(`Failed to start server on port ${PORT}.`);
   }
 };
 
