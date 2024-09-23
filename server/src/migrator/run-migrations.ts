@@ -1,13 +1,12 @@
 import { readdirSync } from 'fs';
 import Bluebird from 'bluebird';
-import { Pool, QueryResult } from 'pg';
+import { QueryResult } from 'pg';
 import { join } from 'path';
-import config from '../database/config';
+import { getPool } from '../database/index';
 
 const MIGRATIONS_DIR = join(__dirname, '../migrations');
 
-let pool: Pool | null = null;
-pool = new Pool(config);
+const pool = getPool();
 
 interface Migration {
   id: number;
@@ -118,8 +117,6 @@ const run = async () => {
   try {
     await pool.connect();
     const migrationListForExecution = await migrationsForExecution();
-    console.log(migrationListForExecution, '---------migrationListForExecution');
-
     await Bluebird.mapSeries(migrationListForExecution, async (migration) => {
       await runMigration(migration);
       await addMigrationToDb(migration);
