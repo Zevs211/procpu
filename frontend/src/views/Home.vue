@@ -1,31 +1,29 @@
 <script setup lang="ts">
 import axios from 'axios';
+import { ref, onMounted } from 'vue';
+
+const data = ref<string | null>(null);
 
 const getData = async () => {
   try {
-    // const data = await axios.create({
-    //   url: 'http://127.0.0.1:3000/',
-    // })
-    // console.log(data);
-
-    // return data;
-    const data = await axios({
+    const response = await axios({
       method: 'get',
       url: 'http://127.0.0.1:3000',
-    })
-    console.log(data, '-----------data');
-    
+    });
+    console.log(response.data.hello, '-----------fff');
+    data.value = response.data.hello;
   } catch (error) {
     console.log(error);
   }
 };
-const data = getData();
 
-// import TheWelcome from '../components/TheWelcome.vue'
+onMounted(async () => {
+  await getData();
+});
 </script>
 
 <template>
   <main>
-    {{ data }}
+    
   </main>
 </template>
