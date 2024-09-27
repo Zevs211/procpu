@@ -49,12 +49,6 @@ const cardStyle = computed<StyleValue>(() => {
   padding: 20px;
   overflow: hidden;
   border-radius: 10px;
-  transition: filter 0.3s ease;
-
-  h2, p {
-    z-index: 1;
-    transition: opacity 0.5s ease;
-  }
 
   &.is-hovered {
     h2 {
@@ -105,6 +99,12 @@ const cardStyle = computed<StyleValue>(() => {
   @media (max-width: 600px) {
     width: 320px;
     height: 320px;
+    .overlay {
+      transform: translateY(45%);  
+      &__title {
+        margin-top: 30%;
+      }
+    }
   }
 
   @media (min-width: 601px) and (max-width: 1024px) {
