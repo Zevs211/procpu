@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import CardsGallery from '../components/CardsGallery.vue';
 import Header from "../components/Header.vue";
 
 const data = ref<string | null>(null);
-const currentImageIndex = ref(0);
-const remainingTime = ref(4);
-const intervalId = ref<NodeJS.Timeout | null>(null);
+const currentValue = ref(0);
+const currentIndex = ref(0);
 
 const startImages = [
   '../public/images/employee_1.jpg',
@@ -27,29 +26,27 @@ const getData = async () => {
   }
 };
 
-const changeImage = () => {
-  return currentImageIndex.value = (currentImageIndex.value + 1) % startImages.length;
+const timer = () => {
+  setInterval(() => {
+    if (currentValue.value < 1000) {
+      currentValue.value += 1;
+    } else {
+      currentIndex.value >= startImages.length - 1 ? currentIndex.value = 0 : currentIndex.value += 1;
+      currentValue.value = 0;
+    }
+  }, 10);
 };
 
-const countdown = () => {
-    if (remainingTime.value > 0) {
-      remainingTime.value--;
-    } else {
-      remainingTime.value = 4
-      changeImage();
-    }
-  };
-const currentImage = computed(() => startImages[currentImageIndex.value]);
+const switchLine = (index: number) => {
+  currentIndex.value = index;
+  currentValue.value = 0;
+}
+
+const currentImage = computed(() => startImages[currentIndex.value]);
 
 onMounted(async () => {
   await getData();  
-  intervalId.value = await setInterval(countdown, 1000);
-});
-
-onUnmounted(() => {
-  if (intervalId.value) {
-    clearInterval(intervalId.value);
-  }
+  timer();
 });
 </script>
 
@@ -64,9 +61,20 @@ onUnmounted(() => {
         <h1 class="start-screen__text">{{'Получи свою \n профессию'}}</h1>
       </div>
       <div class="start-screen__pagination">
-        <div v-for="(startImage, index) in startImages.length" :key="index" 
-          class="start-screen__pagination__item"
-          :class="{'item-color': currentImageIndex === (startImage - 1) }">
+        <div v-for="(startImage, index) in startImages" :key="index" class="item" @click="switchLine(index)">
+          <div class="pagination-line-container">
+            <div class="filled" :style="{ width: `${index < currentIndex ? 100 : (index === currentIndex ? (currentValue / 10) : 0)}%` }"></div>
+            <div class="remaining"></div>
+            <input
+              type="range"
+              min="0"
+              :max="1000"
+              disabled
+              :value="index < currentIndex ? 1000 : (index === currentIndex ? currentValue : 0)"
+              @input="index === currentIndex ? currentValue = +( $event.target as HTMLInputElement ).value : null"
+              class="pagination-line"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -109,25 +117,67 @@ onUnmounted(() => {
   &__pagination {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     gap: 5px;
-    &__item {
-      width: 100%;
-      height: 5px;
-      border-radius: 10px;
-      background-color: rgb(255, 255, 255);
-      opacity: 0.5;
-      margin-bottom: 30px;
-    }
+    margin-bottom: 20px;
   }
 }
-.item-color {
-  opacity: 1;
+
+.pagination-line-container {
+  position: relative;
+  width: 100%;
+  height: 5px;
 }
-.item-color-fill {
-  height: 100%;
-  width: 30%;
-  background-color: red;
+
+.pagination-line {
+  height: 5px;
+  appearance: none;
+  background: transparent;
 }
+
+.item {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.item:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.pagination-line::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0;
+  height: 0;
+}
+
+.pagination-line::-moz-range-thumb {
+  width: 0;
+  height: 0;
+}
+
+.pagination-line::-ms-thumb {
+  width: 0;
+  height: 0;
+}
+
+.filled {
+  border-radius: 5px;
+  height: 5px;
+  background: white;
+  position: absolute;
+}
+
+.remaining {
+  border-radius: 5px;
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
 .container {
   position: relative;
   display: flex;
@@ -154,7 +204,6 @@ onUnmounted(() => {
 }
 
 @media (min-width: 601px) and (max-width: 1024px) {
-  
 }
 
 @media (min-width: 1025px) and (max-width: 1199px) {
