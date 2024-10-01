@@ -118,7 +118,7 @@ const cardStyle = computed<StyleValue>(() => {
     }
   }
 
-  @media (min-width: 1025px) and (max-width: 1199px) {
+  @media (min-width: 1025px) and (max-width: 1279px) {
     width: 454px;
     height: 454px;
     .overlay {
@@ -129,7 +129,7 @@ const cardStyle = computed<StyleValue>(() => {
     }
   }
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1280px) {
     width: 344px;
     height: 344px;
     .overlay {

@@ -32,7 +32,7 @@ const isAuthenticatedUser= ref<boolean>(false)
   align-items: center;
   height: 60px;
   padding: 10px 0px;
-  margin-bottom: 2rem;
+  margin-bottom: 4rem;
 }
 .hidden {
   display: none;
@@ -71,5 +71,17 @@ const isAuthenticatedUser= ref<boolean>(false)
   background-color: rgb(114, 109, 202);
   padding: 0 5px;
   border-radius: 10px;
+}
+
+@media (max-width: 600px) {
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+}
+
+@media (min-width: 1025px) and (max-width: 1279px) {
+}
+
+@media (min-width: 1280px) {
 }
 </style>

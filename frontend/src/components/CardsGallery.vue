@@ -77,14 +77,14 @@ const cardsList: CardData[] = [
   }
 }
 
-@media (min-width: 1025px) and (max-width: 1199px) {
+@media (min-width: 1025px) and (max-width: 1279px) {
   .cards-container {
     justify-items: center;
     grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1280px) {
   .cards-container {
     justify-items: center;
     grid-template-columns: 1fr 1fr 1fr;
