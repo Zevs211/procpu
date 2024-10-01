@@ -3,8 +3,8 @@ import { ref, watch, defineProps, defineEmits, onMounted } from 'vue';
 
 type Employee = {
   img: string;
-  employeeTitle: string;
-  employeeDescription: string;
+  title: string;
+  description: string;
 };
 
 const currentValue = ref(0);
@@ -28,6 +28,8 @@ const timer = () => {
 };
 
 const switchLine = (index: number) => {
+  currentIndex.value = index;
+  currentValue.value = 0;
   emit('switchLine', index);
 };
 
@@ -71,6 +73,7 @@ onMounted(() => {
 .pagination {
   display: flex;
   gap: 5px;
+  margin-bottom: 2rem;
 }
 
 .pagination-item {

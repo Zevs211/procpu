@@ -10,18 +10,18 @@ const data = ref<string | null>(null);
 const startImages = [
   {
     img: '../public/images/employee_1.jpg',
-    employeeTitle: 'Оператор CPU станка',
-    employeeDescription: 'Елена Петрова работает уже больше года на позиции оператор CPU станка',
+    title: 'Оператор CPU станка',
+    description: 'Елена Петрова работает уже больше года на позиции оператор CPU станка',
   },
   {
     img: '../public/images/employee_2.jpg',
-    employeeTitle: 'Инженер конструктор',
-    employeeDescription: 'Иван Иванов получил предложение на позицию инженера конструктора спустя месяц после завершения курса',
+    title: 'Инженер конструктор',
+    description: 'Иван Иванов получил предложение на позицию инженера конструктора спустя месяц после завершения курса',
   },
   {
     img: '../public/images/employee_3.jpg',
-    employeeTitle: 'Наладчик CPU станка',
-    employeeDescription: 'Андрей Сидоров после прохождения курса устроился наладчиком',
+    title: 'Наладчик CPU станка',
+    description: 'Андрей Сидоров после прохождения курса устроился наладчиком',
   },
 ];
 const currentIndex = ref(0);
@@ -64,19 +64,20 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-      <div class="employee">
+      <div class="employee pagination-line-small">
         <div class="employee__title">
-          <h3>{{ startImages[currentIndex].employeeTitle }}</h3>
+          <h3>{{ startImages[currentIndex].title }}</h3>
         </div>
         <div class="employee__description">
-          {{ startImages[currentIndex].employeeDescription }}
+          {{ startImages[currentIndex].description }}
         </div>
-        <PaginationLine 
+        <PaginationLine
           :data="startImages"
           @switchLine="switchLine"
           @changeImg="changeImg"/>
       </div>
       <PaginationLine
+        class="pagination-line-large"
         :data="startImages"
         @switchLine="switchLine"
         @changeImg="changeImg"/>
@@ -135,6 +136,15 @@ onMounted(async () => {
     font-size: 16px;
     margin-bottom: 20px;
   }
+}
+
+.pagination-line-small {
+  display: none;
+
+}
+
+.pagination-line-large {
+  display: flex;
 }
 
 .item {
@@ -246,6 +256,7 @@ onMounted(async () => {
   .text-container {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 3rem;
     width: 100%;
   }
   .text {
@@ -255,8 +266,16 @@ onMounted(async () => {
     max-width: 1072px;
   }
   .start-screen {
+    justify-content: unset;
     height: 95vh;
     padding: 30px 135px;
+  }
+  .pagination-line-small {
+    display: flex;
+  }
+
+  .pagination-line-large {
+    display: none;
   }
 }
 </style>
