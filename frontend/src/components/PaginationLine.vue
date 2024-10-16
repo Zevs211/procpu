@@ -1,128 +1,90 @@
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits, onMounted } from 'vue';
+import { ref, defineProps, defineEmits, watch, onMounted } from 'vue';
 
-type Employee = {
+type image = {
   img: string;
-  title: string;
-  description: string;
+  description?: string;
 };
-
-const currentValue = ref(0);
-const currentIndex = ref(0);
 
 const props = defineProps<{
-  data: Employee[];
+  imageList: image[];
 }>();
 
-const emit = defineEmits(['switchLine', 'changeImg']);
+const emit = defineEmits(['switchLine']);
 
-const timer = () => {
-  setInterval(() => {    
-    if (currentValue.value < 1000) {
-      currentValue.value += 1;
-    } else {
-      currentIndex.value >= props.data.length - 1 ? currentIndex.value = 0 : currentIndex.value += 1;
-      currentValue.value = 0;
-    }
-  }, 10);
+const progress = ref(0);
+const isRunning = ref(false);
+const currentIndex = ref(0);
+const interval = ref<number | undefined>(undefined);
+
+const startTimer = () => {
+  if (!isRunning.value) {
+    isRunning.value = true
+    interval.value = setInterval(() => {
+      progress.value++
+      console.log(progress.value);
+    }, 50)
+  }
+}
+
+const pauseTimer = () => {
+  clearInterval(interval.value);
+  isRunning.value = false;
 };
 
-const switchLine = (index: number) => {
-  currentIndex.value = index;
-  currentValue.value = 0;
-  emit('switchLine', index);
+const resetTimer = () => {
+  pauseTimer();
+  progress.value = 0;
 };
 
-watch(currentIndex, (newVal) => {
-  emit('changeImg', newVal);
-});
+const switchLine = (index?: number) => {
+  resetTimer();
+  startTimer();
+  if (index != null) {
+    currentIndex.value = index;
+    emit('switchLine', currentIndex.value);
+  } else {
+    currentIndex.value >= props.imageList.length - 1 ? currentIndex.value = 0 : currentIndex.value++;
+    emit('switchLine', currentIndex.value);
+  }
+}
+
+watch(progress, (newValue) => {
+  if(newValue >= 100) switchLine()
+})
 
 onMounted(() => {
-  timer();
-});
+  startTimer()
+})
 </script>
 
 <template>
-  <div class="pagination">
-    <div
-      v-for="(item, index) in props.data"
-      :key="index"
-      class="pagination-item"
-      @click="switchLine(index)"
-    >
-      <div class="pagination-line-container">
-        <div
-          class="filled"
-          :style="{ width: `${index < currentIndex ? 100 : (index === currentIndex ? (currentValue / 10) : 0)}%` }"
-        ></div>
-        <div class="remaining"></div>
-        <input
-          type="range"
-          min="0"
-          :max="1000"
-          disabled
-          :value="index < currentIndex ? 1000 : (index === currentIndex ? currentValue : 0)"
-          class="pagination-line"
-        />
-      </div>
-    </div>
+  <div v-for="(line, index) in props.imageList" :key="index" 
+    class="line"
+    @click="switchLine(index)"
+  >
+  <div 
+    class="filled" 
+    :style="{width: `${index < currentIndex ? 100 : (index === currentIndex ? (progress) : 0)}%`}">
+  </div>
   </div>
 </template>
 
-<style scoped>
-.pagination {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 2rem;
-}
-
-.pagination-item {
-  flex: 1;
-  cursor: pointer;
-}
-
-.pagination-line-container {
-  position: relative;
-  height: 5px;
-  width: 100%;
-}
-
-.pagination-line {
-  width: 100%;
-  height: 5px;
-  appearance: none;
-  background: transparent;
-}
-
-.filled {
-  height: 5px;
-  background-color: white;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 5px;
-}
-
-.remaining {
-  height: 5px;
-  background-color: rgba(255, 255, 255, 0.4);
-  border-radius: 5px;
-}
-
-.pagination-line::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 0;
-  height: 0;
-}
-
-.pagination-line::-moz-range-thumb {
-  width: 0;
-  height: 0;
-}
-
-.pagination-line::-ms-thumb {
-  width: 0;
-  height: 0;
-}
+<style scoped lang="scss">
+  .container {
+    display: flex;
+    flex-direction: column;
+  }
+  .line {
+    width: 100%;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .filled {
+    height: 100%;
+    background-color: rgba(255, 255, 255);
+    border-radius: 5px;
+  }
 </style>
