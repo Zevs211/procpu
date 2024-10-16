@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import CardsGallery from '../components/CardsGallery.vue';
 import Header from '../components/Header.vue';
 import PaginationLine from '../components/PaginationLine.vue';
@@ -26,6 +26,7 @@ const startImages = [
 ];
 const currentIndex = ref(0);
 const currentImage = ref(startImages[0].img);
+const isLargeScreen = ref(window.innerWidth >= 1280);
 
 const getData = async () => {
   try {
@@ -40,14 +41,21 @@ const getData = async () => {
 };
 
 const switchLine = (index: number) => {
+  currentImage.value = startImages[index].img;
   currentIndex.value = index;
 };
-const changeImg = (currentIndex: number) => {
-  currentImage.value = startImages[currentIndex].img
-}
+
+const updateScreenSize = () => {
+  isLargeScreen.value = window.innerWidth >= 1280;
+};
 
 onMounted(async () => {
   await getData();
+  window.addEventListener('resize', updateScreenSize);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateScreenSize);
 });
 </script>
 
@@ -71,16 +79,21 @@ onMounted(async () => {
         <div class="employee__description">
           {{ startImages[currentIndex].description }}
         </div>
-        <PaginationLine
-          :data="startImages"
-          @switchLine="switchLine"
-          @changeImg="changeImg"/>
+        <div class="pagination-line-small">
+          <PaginationLine
+            v-if="isLargeScreen"
+            :imageList="startImages"
+            @switchLine="switchLine"
+          />
+        </div>
       </div>
-      <PaginationLine
-        class="pagination-line-large"
-        :data="startImages"
-        @switchLine="switchLine"
-        @changeImg="changeImg"/>
+      <div class="pagination-line-large">
+        <PaginationLine
+          v-if="!isLargeScreen"
+          :imageList="startImages"
+          @switchLine="switchLine"
+        />
+      </div>
     </div>
     <div class="container">
       <div class="gallery-tabs"></div>
@@ -107,6 +120,7 @@ onMounted(async () => {
   padding: 0px 20px 40px 40px;
   width: 100%;
   height: 80vh;
+  transition: background-image 0.35s ease-in-out;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -119,14 +133,17 @@ onMounted(async () => {
   }
 }
 .text {
-  width: 200px;
+  width: 50%;
   color: rgb(255, 255, 255);
 }
-
+.running {
+  display: flex;
+  gap: 5px;
+}
 .employee {
   display: flex;
   flex-direction: column;
-  width: 80%;
+  width: 50%;
   color: rgb(255, 255, 255);
   &__title {
     margin-bottom: 5px;
@@ -135,16 +152,13 @@ onMounted(async () => {
     font-family: 'Tahoma', sans-serif;
     font-size: 16px;
     margin-bottom: 20px;
+    height: 4rem;
   }
-}
-
-.pagination-line-small {
-  display: none;
-
 }
 
 .pagination-line-large {
   display: flex;
+  gap: 5px;
 }
 
 .item {
@@ -260,7 +274,7 @@ onMounted(async () => {
     width: 100%;
   }
   .text {
-    width: 60%;
+    width: 40%;
   }
   .gallery {
     max-width: 1072px;
@@ -272,10 +286,7 @@ onMounted(async () => {
   }
   .pagination-line-small {
     display: flex;
-  }
-
-  .pagination-line-large {
-    display: none;
+    gap: 5px;
   }
 }
 </style>
